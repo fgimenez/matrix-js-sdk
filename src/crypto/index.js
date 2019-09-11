@@ -1382,6 +1382,57 @@ Crypto.prototype.encryptEvent = async function(event, room) {
 };
 
 /**
+ * Decrypt an old event :)
+ *
+ * @param {MatrixEvent} event
+ *
+ * @return {Promise<module:crypto~EventDecryptionResult>} resolves once we have
+ *  finished decrypting. Rejects with an `algorithms.DecryptionError` if there
+ *  is a problem decrypting the event.
+ */
+Crypto.prototype.decryptOldEvent = function() {
+  /*
+  if (event.isRedacted()) {
+        return Promise.resolve({
+            clearEvent: {
+                room_id: event.getRoomId(),
+                type: "m.room.message",
+                content: {},
+            },
+        });
+    }
+  const content = event.getWireContent();
+  */
+  const content = {
+    "algorithm": "m.megolm.v1.aes-sha2",
+    "ciphertext": "AwgBEpAC+QfdzFt7AWJPgRaBqT80Xms5PdId5V1it0jQVbqMkO4TGeey3Wf2v48odRKcA4vHKIAmyDjpkvyDnUGJ4/5H+3PxcoJ0uC9vp0uMx1g49G3q7gZNDGAdmwFpBrNfMZlw2H4WeM2RwlNO7+PmcBHaCGRYnNe1MV5vSPW4CeQmYkm6ZFY13s3reYHMFpoiC0kXh3D+CwZkDOoZmas3dDc7KzfoiHoExRCA5Rs5ONoMkOXXHGMmUnLrxz4Juo6r15wT/A4QdfSMu1E+l8pXa3ErxPnW60v0FQC2U6efk2n5r7ix/WxbgQMXn4hgvbcEK6PYm4BKsye1DwSNEdBbS0b86ms6t92424Jm6j3l8xw2JjnoDfosf2ZaIE5tKSwAuJea4VTs15GlL+oEsAOT2dK5TQ6HcV04LnliiavQu0lmo7Dp9vKZWeWcpzcEvwBtZ70Zd0/VAAlqIQ8",
+    "device_id": "WVQWGHHNPV",
+    "sender_key": "cvyEI3m2IvbOY3/vGBII/fSzF9u54z62v8jvGYLnQSE",
+    "session_id": "PFl1bVOjEl6O9AZ8wGZ17trxViAAiWAKKDrFZO7afU0"
+  }
+  const event = {
+    getRoomId: () => {
+      return "!YrlQKVcWGyidbelRAL:web3.foundation";
+    },
+    getTs: () => {
+      return 1559315520125;
+    },
+    getId: () => {
+      return "$1559315520165280cNVZy:matrix.parity.io";
+    },
+    getWireContent: () => {
+      return content;
+    },
+    getKeyRequestRecipients: () => {
+      return [{userId: this._userId, deviceId: '*'}];
+    }
+  };
+
+  const alg = this._getRoomDecryptor(event.getRoomId(), content.algorithm);
+  return alg.decryptEvent(event);
+};
+
+/**
  * Decrypt a received event
  *
  * @param {MatrixEvent} event
